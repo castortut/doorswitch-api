@@ -38,6 +38,8 @@ app.config['MQTT_TLS_ENABLED'] = False  # set TLS to disabled for testing purpos
 
 mqtt = Mqtt(app)
 
+LABELS = ["pizza", "limsa", "tölkki 1€", "tölkki 2€", "jäätelö", "<tyhjä>"]
+
 global state
 state = {
     "updated": "",
@@ -95,14 +97,40 @@ def handle_logging(client, userdata, level, buf) -> None:
         print(f"{LOG_LEVELS[level]}: {buf}")
 
 
-@app.route("/")
-def get_activity():
+@app.route("/v0")
+def get_activity_v0():
     """
     A Flask route that responds to requests on the URL '/'. Builds an JSON object from the stored data.
     """
 
     global state
     return json.dumps(state)
+
+
+@app.route("/v1")
+def get_activity_v1():
+    """
+    A Flask route that responds to requests on the URL '/'. Builds an JSON object from the stored data.
+    """
+
+    global state
+    products = {}
+
+    for i in range(len(state['switches'])):
+        if len(LABELS) > i:
+            products[LABELS[i]] = state['switches'][i]
+        else:
+            products[f"label missing {i}"] = state['switches'][i]
+
+    output = state.copy()
+    output.update({'products': products})
+
+    return json.dumps(output)
+
+
+@app.route("/")
+def get_activity_latest():
+    return get_activity_v1()
 
 
 if __name__ == '__main__':
