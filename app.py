@@ -97,16 +97,6 @@ def handle_logging(client, userdata, level, buf) -> None:
         print(f"{LOG_LEVELS[level]}: {buf}")
 
 
-@app.route("/v0")
-def get_activity_v0():
-    """
-    A Flask route that responds to requests on the URL '/'. Builds an JSON object from the stored data.
-    """
-
-    global state
-    return json.dumps(state)
-
-
 @app.route("/v1")
 def get_activity_v1():
     """
