@@ -110,8 +110,6 @@ def get_activity_v1():
     for i in range(len(state['switches'])):
         if len(LABELS) > i and LABELS[i]:
             products[LABELS[i]] = state['switches'][i]
-        else:
-            products[f"label missing {i}"] = state['switches'][i]
 
     output = state.copy()
     output.update({'products': products})
