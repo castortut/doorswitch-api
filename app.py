@@ -38,12 +38,13 @@ app.config['MQTT_TLS_ENABLED'] = False  # set TLS to disabled for testing purpos
 
 mqtt = Mqtt(app)
 
-LABELS = ["pizza", "limsa", "tölkki 1€", "tölkki 2€", "jäätelö", "<tyhjä>"]
+LABELS = ["<tyhjä>", "<tyhjä>", "pizza", "jäätelö", "limsa", "tölkki"]
 
 global state
 state = {
     "updated": "",
     "switches": [],
+    "_comment": "True means that the product is in stock",
 }
 
 
@@ -76,9 +77,10 @@ def handle_mqtt_message(client, userdata, message) -> None:
 
     for bit in message.payload.decode():
         if bit == '1':
-            switches.append(False)
-        else:
+            # 1 means that the product is in stock (switch off)
             switches.append(True)
+        else:
+            switches.append(False)
 
     global state
     state['switches'] = switches
