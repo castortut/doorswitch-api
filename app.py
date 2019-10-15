@@ -37,7 +37,7 @@ app.config['MQTT_TLS_ENABLED'] = False  # set TLS to disabled for testing purpos
 
 mqtt = Mqtt(app)
 
-LABELS = ["<tyhjä>", "<tyhjä>", "pizza", "jäätelö", "limsa", "tölkki"]
+LABELS = [None, None, "pizza", "jäätelö", "limsa", "tölkki"]
 
 global state
 state = {
@@ -108,7 +108,7 @@ def get_activity_v1():
     products = {}
 
     for i in range(len(state['switches'])):
-        if len(LABELS) > i:
+        if len(LABELS) > i and LABELS[i]:
             products[LABELS[i]] = state['switches'][i]
         else:
             products[f"label missing {i}"] = state['switches'][i]
