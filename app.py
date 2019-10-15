@@ -1,8 +1,7 @@
 import datetime
-import json
 import os
 
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask_mqtt import Mqtt
 
 ########
@@ -117,7 +116,7 @@ def get_activity_v1():
     output = state.copy()
     output.update({'products': products})
 
-    return json.dumps(output)
+    return jsonify(output)
 
 
 @app.route("/")
