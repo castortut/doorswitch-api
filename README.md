@@ -2,7 +2,7 @@ Fridge API
 ==========
 
 A service that listens to updates on an MQTT message broker from the fridge-mounted switch panel.
-Server both raw switch information and a dictionary with product labels attached. 
+Serves both raw switch state information and a dictionary with product labels attached. 
 
 The purpose is to let people who consume products from the fridge to flip a switch when something
 runs out. The information can then be used as a simple shopping list. It can be consumed by web applications,
