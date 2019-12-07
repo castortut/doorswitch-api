@@ -37,13 +37,12 @@ app.config['MQTT_TLS_ENABLED'] = False  # set TLS to disabled for testing purpos
 
 mqtt = Mqtt(app)
 
-LABELS = [None, None, "pizza", "jäätelö", "limsa", "tölkki"]
 
 global state
 state = {
     "updated": "",
-    "switches": [],
-    "_comment": "True means that the product is in stock",
+    "switch": [],
+    "_comment": "True means that the door is open",
 }
 
 
@@ -55,34 +54,31 @@ def handle_connect(client, userdata, flags, rc) -> None:
     """
     print("Connected to MQTT")
 
-    # Subscribe to all topics that begin with '/iot/cave/fridgeSwitch0/'
-    mqtt.subscribe('/iot/cave/fridgeSwitch0/*')
+    # Subscribe to all topics that begin with '/iot/cave/door0/'
+    mqtt.subscribe('/iot/cave/door0/*')
 
 
 @mqtt.on_message()
 def handle_mqtt_message(client, userdata, message) -> None:
     """
     Handle an event where a message is published to one of the topics we are subscribed to.
-    Since we're (only) subscribed to the motion events, this means that motion has been registered somewhere.
+    Since we're (only) subscribed to the door events, this means that motion has been registered somewhere.
 
     :param message: An object containing information (including the topic and the payload) of the message
     """
 
-    # The last part of the topic is the sensor ID, like /iot/cave/motion0/123456
+    # The last part of the topic is the sensor ID, like /iot/cave/door0/123456
     id = message.topic.split('/')[-1]
     print("Received an update from switch {}".format(id))
 
-    switches = []
-
-    for bit in message.payload.decode():
-        if bit == '1':
-            # 1 means that the product is in stock (switch off)
-            switches.append(True)
-        else:
-            switches.append(False)
+    status = message.payload.decode()
+    if status[0] == '1':
+        door_open = True
+    else:
+        door_open = False
 
     global state
-    state['switches'] = switches
+    state['switch'] = door_open
     state['updated'] = datetime.datetime.now().timestamp()
 
 
@@ -99,27 +95,18 @@ def handle_logging(client, userdata, level, buf) -> None:
 
 
 @app.route("/v1")
-def get_activity_v1():
+def get_door_v1():
     """
     A Flask route that responds to requests on the URL '/'. Builds an JSON object from the stored data.
     """
 
     global state
-    products = {}
-
-    for i in range(len(state['switches'])):
-        if len(LABELS) > i and LABELS[i]:
-            products[LABELS[i]] = state['switches'][i]
-
-    output = state.copy()
-    output.update({'products': products})
-
-    return jsonify(output)
+    return jsonify(state)
 
 
 @app.route("/")
-def get_activity_latest():
-    return get_activity_v1()
+def get_door_latest():
+    return get_door_v1()
 
 
 if __name__ == '__main__':
