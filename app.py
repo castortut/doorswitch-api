@@ -41,8 +41,7 @@ mqtt = Mqtt(app)
 global state
 state = {
     "updated": "",
-    "switch": [],
-    "_comment": "True means that the door is open",
+    "switch": None,
 }
 
 
@@ -101,7 +100,9 @@ def get_door_v1():
     """
 
     global state
-    return jsonify(state)
+    response = state.copy()
+    response['is_open'] = state['switch']
+    return jsonify(response)
 
 
 @app.route("/")
